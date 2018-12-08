@@ -11,11 +11,13 @@ const click = (event) =>{
   floor = event.target.name;
 }
 
+
+// can inline set props for styled components
 const ElevatorPanel = (props) =>{
   return <Panel> 
     <FloorDisplay>{floor}</FloorDisplay>
     { buttonsArray.map(btn =>
-        <Button key={btn} name={btn} onClick={click}>{btn}</Button>
+        <Button key={btn} name={btn} active={false} onClick={click}>{btn}</Button>
     )}
      </Panel>
 }
@@ -25,11 +27,16 @@ export default ElevatorPanel
 
 const Button = styled.button`
  display: block;
+ margin:  .25rem auto;
  border-radius: 100px; 
-  margin: auto;
   width: 3rem;
   height: 3rem;
   transition: transform 3s;
+  background-color: ${props => {
+    if(props.active){
+      return "limegreen"
+    }
+  }};
   &:hover {
     background-color: grey;
     color: white; 
@@ -39,6 +46,8 @@ const Button = styled.button`
     color: white; 
   }
 `
+
+
 
 const FloorDisplay = styled.h1`
   color: green;
