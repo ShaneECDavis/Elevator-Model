@@ -1,25 +1,38 @@
-import React, {Component} from 'react'
+import React,{ useState } from 'react'
 import styled from 'styled-components'
 
 // need to make a stateful component 
 
-const buttonsArray = ['B','GL','2','3','4','5']
-let floor = ''; 
 
-const click = (event) =>{
-  console.log(event.target.name)
-  floor = event.target.name;
-}
+
 
 
 // can inline set props for styled components
-const ElevatorPanel = (props) =>{
-  return <Panel> 
-    <FloorDisplay>{floor}</FloorDisplay>
-    { buttonsArray.map(btn =>
-        <Button key={btn} name={btn} active={false} onClick={click}>{btn}</Button>
-    )}
-     </Panel>
+const ElevatorPanel = (props) => {
+
+  const buttonsArray = ['B', 'GL', '2', '3', '4', '5'] // Current list of floors 
+  const travelTime = 1000; // How long it takes to get inbetween floors
+  const queue = []; // Stores buttons that have been pressed
+  const [floor, setFloor] = useState('GL') // using React 16.7.alpha hooks
+
+  const click = (event) => {
+    setFloor(event.target.name)
+  }
+
+
+  return (
+    <div>
+      <FloorDisplay>{floor}</FloorDisplay>
+      <Panel>
+        {buttonsArray.map(btn =>
+          <Button key={btn} name={btn} active={false} onClick={click}>{btn}</Button>
+        )}
+      </Panel>
+    </div>
+  )
+
+
+  
 }
 
 export default ElevatorPanel
@@ -33,7 +46,7 @@ const Button = styled.button`
   height: 3rem;
   transition: transform 3s;
   background-color: ${props => {
-    if(props.active){
+    if (props.active) {
       return "limegreen"
     }
   }};
