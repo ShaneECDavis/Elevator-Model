@@ -1,33 +1,80 @@
 import React,{ useState } from 'react'
 import styled from 'styled-components'
 
-// need to make a stateful component 
 
 
+ class ElevatorPanelClass {
+
+  constructor(panelArray){ 
+   this.panelArray = panelArray  // Current list of floors 
+   this.travelTime = 1000 // How long it takes to get inbetween floors
+   this.queue = []
+   this.directionOfTravel = 0 // -1 down, 1 up, 0 stationary 
+   this.inMotion = ()=>{}
+   this.btnObj = {}
+   this.buildBtnObj(this.panelArray)
+   this.currentFloor = ''
+ }
+  
+ // handles when button is pressed
+ press = (buttonPressd) =>{
+
+ }
+
+ // starts the evelvators motion 
+  startMotion = () => {
+  //  this.btnObj[event.target.name] = (!this.btnObj[event.target.name])
+      this.inMotion = setInterval(() => {
+      if (this.queue[0]) {
+        console.log('stop', this.queue)
+        this.stopMotion()
+      }
+    }, this.travelTime)
+  }
+  
+  // stops the elevators motion
+  stopMotion = () => {
+    clearInterval(this.inMotion)
+  }
+  
+  // builds the button object to signal which buttons are actively pressed 
+  buildBtnObj = (arr) =>{
+    for(let i = 0; i < arr.length; i++){
+         this.btnObj[arr[i]] = false
+     }
+  }
+ }
 
 
 
 // can inline set props for styled components
-const ElevatorPanel = (props) => {
+const ElevatorPanel = () => {
+  const PanelClass = new ElevatorPanelClass(['B','GL','1','2','3','4','5'])
+  const [displayFloor, setdisplayFloor] = useState(PanelClass.panelArray[1]) // using React 16.7.alpha hooks displays current floor 
+  const [btnObj, setBtnObj] = useState({})
 
-  const buttonsArray = ['B', 'GL', '2', '3', '4', '5'] // Current list of floors 
-  const travelTime = 1000; // How long it takes to get inbetween floors
-  const queue = []; // Stores buttons that have been pressed
-  const [floor, setFloor] = useState('GL') // using React 16.7.alpha hooks
-
+  
+  
   const click = (event) => {
-    setFloor(event.target.name)
+    
+    PanelClass.press(event.target.name)
+    console.log(PanelClass.btnObj)
+    setBtnObj(PanelClass.btnObj)
+    PanelClass.queue.push(event.target.name)
+    PanelClass.startMotion()
+ 
   }
 
 
   return (
     <div>
-      <FloorDisplay>{floor}</FloorDisplay>
+      <FloorDisplay>{displayFloor}</FloorDisplay>
       <Panel>
-        {buttonsArray.map(btn =>
-          <Button key={btn} name={btn} active={false} onClick={click}>{btn}</Button>
+        {PanelClass.panelArray.map(btn =>
+          <Button key={btn} name={btn} active={btnObj[btn]} onClick={click}>{btn}</Button>
         )}
       </Panel>
+     
     </div>
   )
 
@@ -45,6 +92,10 @@ const Button = styled.button`
   width: 3rem;
   height: 3rem;
   transition: transform 3s;
+  color: ${props => {
+    if(props.active) return "white"
+    else return "black"  
+  }}
   background-color: ${props => {
     if (props.active) {
       return "limegreen"
@@ -59,8 +110,6 @@ const Button = styled.button`
     color: white; 
   }
 `
-
-
 
 const FloorDisplay = styled.h1`
   color: green;
