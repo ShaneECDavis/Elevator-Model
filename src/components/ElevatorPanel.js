@@ -10,24 +10,27 @@ import styled from 'styled-components'
    this.travelTime = 1000 // How long it takes to get inbetween floors
    this.queue = []
    this.directionOfTravel = 0 // -1 down, 1 up, 0 stationary 
-   this.inMotion = ()=>{}
    this.btnObj = {}
    this.buildBtnObj(this.panelArray)
    this.currentFloor = ''
  }
   
  // handles when button is pressed
- press = (buttonPressd) =>{
-
+ press = (buttonPressed) =>{
+    this.queue.push(buttonPressed)
+  //  this.btnObj[buttonPressed] = true
+    this.startMotion()
+    this.btnObj[buttonPressed] = (!this.btnObj[buttonPressed])
  }
 
  // starts the evelvators motion 
   startMotion = () => {
-  //  this.btnObj[event.target.name] = (!this.btnObj[event.target.name])
-      this.inMotion = setInterval(() => {
-      if (this.queue[0]) {
-        console.log('stop', this.queue)
-        this.stopMotion()
+   const stopMotion = ()=>{
+      clearInterval(inMotion)
+    }
+      const inMotion = setInterval(() => {
+      if (this.queue[0]) {    
+        stopMotion()
       }
     }, this.travelTime)
   }
@@ -50,20 +53,19 @@ import styled from 'styled-components'
 // can inline set props for styled components
 const ElevatorPanel = () => {
   const PanelClass = new ElevatorPanelClass(['B','GL','1','2','3','4','5'])
-  const [displayFloor, setdisplayFloor] = useState(PanelClass.panelArray[1]) // using React 16.7.alpha hooks displays current floor 
+  const [displayFloor, setdisplayFloor] = useState(PanelClass.panelArray[1]) // using React 16.7.alpha hooks
   const [btnObj, setBtnObj] = useState({})
 
   
   
   const click = (event) => {
-    
     PanelClass.press(event.target.name)
-    console.log(PanelClass.btnObj)
     setBtnObj(PanelClass.btnObj)
-    PanelClass.queue.push(event.target.name)
-    PanelClass.startMotion()
- 
+    setdisplayFloor(PanelClass.queue[0])
+    console.log(PanelClass.btnObj)
   }
+
+
 
 
   return (
