@@ -48,11 +48,11 @@ import styled from 'styled-components'
   }
  }
 
-
-
+ 
+ const PanelClass = new ElevatorPanelClass(['B','GL','1','2','3','4','5'])
+ 
 // can inline set props for styled components
-const ElevatorPanel = () => {
-  const PanelClass = new ElevatorPanelClass(['B','GL','1','2','3','4','5'])
+ const ElevatorPanel = () => {
   const [displayFloor, setdisplayFloor] = useState(PanelClass.panelArray[1]) // using React 16.7.alpha hooks
   const [btnObj, setBtnObj] = useState({})
 
@@ -61,7 +61,7 @@ const ElevatorPanel = () => {
   const click = (event) => {
     PanelClass.press(event.target.name)
     setBtnObj(PanelClass.btnObj)
-    setdisplayFloor(PanelClass.queue[0])
+   setdisplayFloor(PanelClass.queue[0])
     console.log(PanelClass.btnObj)
   }
 
