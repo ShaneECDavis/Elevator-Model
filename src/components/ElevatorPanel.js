@@ -17,24 +17,30 @@ import history from '../history'
    this.btnObj = {} // Keeps track of when and which lights to light up on panel
    this.buildBtnObj(this.panelArray) // Builds panel
    this.currentFloor = this.panelArray[1] // Sets current floor from the current panel 
+   this.inMotion = false; 
  }
   
  // handles when button is pressed
  press = (buttonPressed, displayFlr, closeDrs) =>{
       
      this.queue.push(buttonPressed)
+     if(!this.inMotion){
      setTimeout(() => {
-       this.startMotion(buttonPressed, displayFlr, closeDrs)
+       this.startMotion( displayFlr, closeDrs)
      }, 2000);
+    }
      this.btnObj[buttonPressed] = true
      
  }
 
  // starts the evelvators motion 
-  startMotion = (destination, displayFlr, closeDrs) => {
+  startMotion = (displayFlr, closeDrs) => {
+  // removed destination 
+    this.inMotion = true;
+    if(this.queue[0]){
     console.log(this.queue, 'queue in startMotion')
     let currentIndex = this.panelArray.indexOf(this.currentFloor)
-    let destinationIndex = this.panelArray.indexOf(destination)
+    let destinationIndex = this.panelArray.indexOf(this.queue.pop())
     let directionOfTravel = currentIndex > destinationIndex ? - 1 : 1
     
     // function to stop when arrived at destination floor 
@@ -46,6 +52,11 @@ import history from '../history'
     const inMotion = setInterval(() => {      
       if(this.panelArray[destinationIndex] === this.currentFloor){
         stopMotion()
+        this.inMotion = false
+        if(this.queue[0]){
+            this.startMotion(displayFlr,closeDrs)
+        }
+        console.log(this.queue, 'after pop')
         closeDrs(true)
         console.log(this.btnObj)
         this.btnObj[this.currentFloor] = false
@@ -57,8 +68,9 @@ import history from '../history'
     }
     }, this.travelTime)
   }
+  }
 
-  
+
 
   // builds the button object to signal which buttons are actively pressed 
   buildBtnObj = (arr) =>{
@@ -83,7 +95,7 @@ const ElevatorPanel = () => {
     document.title = `${PanelClass.currentFloor}`
   })
   
-  const click = (event) => {
+  const onClick = (event) => {
     
     setBtnObj(PanelClass.btnObj)
     setdisplayFloor(PanelClass.currentFloor)
@@ -97,6 +109,8 @@ const ElevatorPanel = () => {
    // setdisplayFloor(PanelClass.currentFloor)
     console.log(PanelClass.currentFloor, 'click display floor')
   }
+   
+
 
   return (
     <Fragment>
@@ -107,7 +121,7 @@ const ElevatorPanel = () => {
       </Display> 
       <Panel>
         {PanelClass.panelArray.map(btn =>
-           <Button key={btn} name={btn} active={btnObj[btn]} onClick={click}>{btn}</Button>                       
+           <Button key={btn} name={btn} active={btnObj[btn]} onClick={onClick}>{btn}</Button>                       
             )}
       </Panel>
      </PanelHouse>
@@ -172,7 +186,7 @@ const Floors = styled.div`
     position: absolute; 
     z-index: -4;
     width: 100%;
-    background-color: grey;
+    height: 100%;
 `
 
 const Doors = styled.div`

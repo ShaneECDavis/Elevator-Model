@@ -3,9 +3,16 @@ import styled, { keyframes, css } from 'styled-components'
 
 
 const FloorB = () => {
-  return (<Fragment> <div>Floor B </div></Fragment>)
+  return (<FloorBdiv>Floor B </FloorBdiv>)
 }
 
 export default FloorB; 
 
 
+const FloorBdiv = styled.div`
+  background-image: url("/img/floorB.jpg");
+  width: 100%;
+  height: 100%;
+  background-size: cover; 
+  background-position: center; 
+`
