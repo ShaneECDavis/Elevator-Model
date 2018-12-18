@@ -1,7 +1,6 @@
 import React,{ useState, useEffect, Fragment } from 'react'
 import styled, {keyframes, css} from 'styled-components'
-import {Switch, Route, Redirect} from 'react-router'
-import {Link} from 'react-router-dom'
+import {Switch, Route } from 'react-router'
 import {FloorB, FloorGL, Floor2, Floor3, Floor4, Floor5} from './floors'
 import history from '../history'
 
@@ -12,12 +11,12 @@ import history from '../history'
 
   constructor(panelArray){ 
    this.panelArray = panelArray  // Current list of floors being rendered
-   this.travelTime = 1000 // How long it takes to get inbetween floors
+   this.travelTime = 1000 // How long it takes to get in-between floors
    this.queue = [] // Holds onto buttons that have been pressed
    this.btnObj = {} // Keeps track of when and which lights to light up on panel
    this.buildBtnObj(this.panelArray) // Builds panel
    this.currentFloor = this.panelArray[1] // Sets current floor from the current panel 
-   this.inMotion = false; 
+   this.inMotion = false; // Keeps track whether or not elevator is in motion
  }
   
  // handles when button is pressed
@@ -35,10 +34,8 @@ import history from '../history'
 
  // starts the evelvators motion 
   startMotion = (displayFlr, closeDrs) => {
-  // removed destination 
     this.inMotion = true;
     if(this.queue[0]){
-    console.log(this.queue, 'queue in startMotion')
     let currentIndex = this.panelArray.indexOf(this.currentFloor)
     let destinationIndex = this.panelArray.indexOf(this.queue.pop())
     let directionOfTravel = currentIndex > destinationIndex ? - 1 : 1
@@ -56,14 +53,11 @@ import history from '../history'
         if(this.queue[0]){
             this.startMotion(displayFlr,closeDrs)
         }
-        console.log(this.queue, 'after pop')
         closeDrs(true)
-        console.log(this.btnObj)
         this.btnObj[this.currentFloor] = false
       }  else {
       this.currentFloor = this.panelArray[x] || this.currentFloor
       displayFlr(this.currentFloor)
-      console.log(this.currentFloor)
       x = directionOfTravel > 0  ? x + 1 : x - 1  
     }
     }, this.travelTime)
@@ -105,12 +99,8 @@ const ElevatorPanel = () => {
     setTimeout(() => {
       history.push(`/floor/${target}`)
     }, 3000);
-  
-   // setdisplayFloor(PanelClass.currentFloor)
-    console.log(PanelClass.currentFloor, 'click display floor')
+ 
   }
-   
-
 
   return (
     <Fragment>
