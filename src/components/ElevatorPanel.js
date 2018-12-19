@@ -22,23 +22,37 @@ import history from '../history'
  // handles when button is pressed
  press = (buttonPressed, displayFlr, closeDrs) =>{
       
+    if(this.queue.indexOf(buttonPressed) === -1){
      this.queue.push(buttonPressed)
-     if(!this.inMotion){
-     setTimeout(() => {
-       this.startMotion( displayFlr, closeDrs)
-     }, 2000);
     }
+
+     if(!this.inMotion){
+      
+       this.startMotion(displayFlr,closeDrs)
+       
+    }
+     // Updates if button is pressed
      this.btnObj[buttonPressed] = true
      
  }
 
  // starts the evelvators motion 
   startMotion = (displayFlr, closeDrs) => {
-    this.inMotion = true;
+    this.inMotion = true
+    closeDrs(false)
+    
+    setTimeout(() => {
+      
     if(this.queue[0]){
     let currentIndex = this.panelArray.indexOf(this.currentFloor)
-    let destinationIndex = this.panelArray.indexOf(this.queue.pop())
+    let destinationIndex = this.panelArray.indexOf(this.queue[0])
+    let currentFloorTarget = this.queue.shift()
     let directionOfTravel = currentIndex > destinationIndex ? - 1 : 1
+    
+
+      setTimeout(() => {
+        history.push(`/floor/${currentFloorTarget}`)
+      }, 3000)
     
     // function to stop when arrived at destination floor 
     const stopMotion = ()=>{
@@ -46,20 +60,22 @@ import history from '../history'
     } 
 
     let x = currentIndex; 
-    const inMotion = setInterval(() => {      
+    const inMotion = setInterval(() => {   
+      
       if(this.panelArray[destinationIndex] === this.currentFloor){
-
         stopMotion()
-
+        // opens doors
+        closeDrs(true)
+         
         // continues elevators motion if there is still buttons active
         if(this.queue[0]){
-          this.startMotion(displayFlr,closeDrs)
+          setTimeout(() => {     
+            this.startMotion(displayFlr,closeDrs)
+          }, 3000);
         } else {
           this.inMotion = false
         }
 
-        // closes doors
-        closeDrs(true)
         this.btnObj[this.currentFloor] = false
       }  else {
       this.currentFloor = this.panelArray[x] || this.currentFloor
@@ -68,7 +84,8 @@ import history from '../history'
       x = directionOfTravel > 0  ? x + 1 : x - 1  
     }
     }, this.travelTime)
-  }
+  }}
+    , 2000)
   }
 
 
@@ -97,21 +114,13 @@ const ElevatorPanel = () => {
   })
   
   const onClick = (event) => {
-    const target = event.target.name
+
+    const floorPressed = event.target.name
     
+    // Uses PanelClass method press and sends in needed functions and target
+    PanelClass.press(floorPressed, setdisplayFloor.bind(this), setcloseDoors.bind(this))
     // Updates rendered panel to current buttons pressed
     setBtnObj(PanelClass.btnObj)
-    // Updates display to have correct floor
-    setdisplayFloor(PanelClass.currentFloor)
-    // Closes door
-    setcloseDoors(false)
-    // Uses PanelClass method and sends in needed functions and target
-    PanelClass.press(target, setdisplayFloor.bind(this), setcloseDoors.bind(this))
-
-    // delays new floor being rendered before doors shut
-    setTimeout(() => {
-      history.push(`/floor/${target}`)
-    }, 3000);
  
   }
 
