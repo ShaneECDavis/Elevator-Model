@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react'
-import styled, { keyframes, css } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { Switch, Route } from 'react-router'
 import { FloorB, FloorGL, Floor2, Floor3, Floor4, Floor5 } from './floors'
 import history from '../history'
