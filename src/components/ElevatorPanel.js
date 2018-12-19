@@ -1,107 +1,100 @@
-import React,{ useState, useEffect, Fragment } from 'react'
-import styled, {keyframes, css} from 'styled-components'
-import {Switch, Route } from 'react-router'
-import {FloorB, FloorGL, Floor2, Floor3, Floor4, Floor5} from './floors'
+import React, { useState, useEffect, Fragment } from 'react'
+import styled, { keyframes, css } from 'styled-components'
+import { Switch, Route } from 'react-router'
+import { FloorB, FloorGL, Floor2, Floor3, Floor4, Floor5 } from './floors'
 import history from '../history'
 
 
+class ElevatorPanelClass {
 
+  constructor(panelArray) {
+    this.panelArray = panelArray  // Current list of floors being rendered
+    this.travelTime = 1000 // How long it takes to get in-between floors
+    this.doorsOpenTime = 3000 // sets time out time allowing for doors to work
+    this.queue = [] // Holds onto buttons that have been pressed
+    this.btnObj = {} // Keeps track of when and which lights to light up on panel
+    this.buildBtnObj(this.panelArray) // Builds panel
+    this.currentFloor = this.panelArray[1] // Sets current floor from the current panel 
+    this.inMotion = false; // Keeps track whether or not elevator is in motion
+  }
 
- class ElevatorPanelClass {
+  // handles when button is pressed
+  press = (buttonPressed, displayFlr, closeDrs) => {
 
-  constructor(panelArray){ 
-   this.panelArray = panelArray  // Current list of floors being rendered
-   this.travelTime = 1000 // How long it takes to get in-between floors
-   this.queue = [] // Holds onto buttons that have been pressed
-   this.btnObj = {} // Keeps track of when and which lights to light up on panel
-   this.buildBtnObj(this.panelArray) // Builds panel
-   this.currentFloor = this.panelArray[1] // Sets current floor from the current panel 
-   this.inMotion = false; // Keeps track whether or not elevator is in motion
- }
-  
- // handles when button is pressed
- press = (buttonPressed, displayFlr, closeDrs) =>{
-      
-    if(this.queue.indexOf(buttonPressed) === -1){
-     this.queue.push(buttonPressed)
+    if (this.queue.indexOf(buttonPressed) === -1) {
+      this.queue.push(buttonPressed)
     }
 
-     if(!this.inMotion){
-      
-       this.startMotion(displayFlr,closeDrs)
-       
+    if (!this.inMotion) {
+      this.startMotion(displayFlr, closeDrs)
     }
-     // Updates if button is pressed
-     this.btnObj[buttonPressed] = true
-     
- }
+    // Updates if button is pressed
+    this.btnObj[buttonPressed] = true
+  }
 
- // starts the evelvators motion 
+  // starts the evelvators motion 
   startMotion = (displayFlr, closeDrs) => {
     this.inMotion = true
     closeDrs(false)
-    
+
     setTimeout(() => {
-      
-    if(this.queue[0]){
-    let currentIndex = this.panelArray.indexOf(this.currentFloor)
-    let destinationIndex = this.panelArray.indexOf(this.queue[0])
-    let currentFloorTarget = this.queue.shift()
-    let directionOfTravel = currentIndex > destinationIndex ? - 1 : 1
-    
 
-      setTimeout(() => {
-        history.push(`/floor/${currentFloorTarget}`)
-      }, 3000)
-    
-    // function to stop when arrived at destination floor 
-    const stopMotion = ()=>{
-      clearInterval(inMotion)
-    } 
+      if (this.queue[0]) {
 
-    let x = currentIndex; 
-    const inMotion = setInterval(() => {   
-      
-      if(this.panelArray[destinationIndex] === this.currentFloor){
-        stopMotion()
-        // opens doors
-        closeDrs(true)
-         
-        // continues elevators motion if there is still buttons active
-        if(this.queue[0]){
-          setTimeout(() => {     
-            this.startMotion(displayFlr,closeDrs)
-          }, 3000);
-        } else {
-          this.inMotion = false
+        let currentIndex = this.panelArray.indexOf(this.currentFloor)
+        let destinationIndex = this.panelArray.indexOf(this.queue[0])
+        let directionOfTravel = currentIndex > destinationIndex ? - 1 : 1
+        let currentFloorTarget = this.queue.shift()
+
+        // delays page change in time for doors 
+        setTimeout(() => {
+          history.push(`/floor/${currentFloorTarget}`)
+        }, this.doorsOpenTime)
+
+        // function to stop when arrived at destination floor 
+        const stopMotion = () => {
+          clearInterval(inMotion)
         }
 
-        this.btnObj[this.currentFloor] = false
-      }  else {
-      this.currentFloor = this.panelArray[x] || this.currentFloor
+        let x = currentIndex;
+        const inMotion = setInterval(() => {
 
-      displayFlr(this.currentFloor)
-      x = directionOfTravel > 0  ? x + 1 : x - 1  
+          if (this.panelArray[destinationIndex] === this.currentFloor) {
+
+            stopMotion()
+            // opens doors
+            closeDrs(true)
+
+            // continues elevators motion if there is still buttons active
+            if (this.queue[0]) {
+              setTimeout(() => {
+                this.startMotion(displayFlr, closeDrs)
+              }, this.doorsOpenTime);
+            } else {
+              this.inMotion = false
+            }
+            this.btnObj[this.currentFloor] = false
+          } else {
+            this.currentFloor = this.panelArray[x] || this.currentFloor
+            displayFlr(this.currentFloor)
+            // sets which way elevator is moving 
+            x = directionOfTravel > 0 ? x + 1 : x - 1
+          }
+        }, this.travelTime)
+      }
     }
-    }, this.travelTime)
-  }}
-    , 2000)
+      , this.doorsOpenTime)
   }
 
-
-
   // builds the button object to signal which buttons are actively pressed 
-  buildBtnObj = (arr) =>{
-    for(let i = 0; i < arr.length; i++){
+  buildBtnObj = (arr) => {
+    for (let i = 0; i < arr.length; i++) {
       this.btnObj[arr[i]] = false
     }
   }
 }
 
-
-const PanelClass = new ElevatorPanelClass(['B','GL','2','3','4','5'])
-
-
+const PanelClass = new ElevatorPanelClass(['B', 'GL', '2', '3', '4', '5'])
 
 const ElevatorPanel = () => {
   const [displayFloor, setdisplayFloor] = useState(PanelClass.panelArray[1]) // using React 16.7.alpha hooks
@@ -109,65 +102,60 @@ const ElevatorPanel = () => {
   let [closeDoors, setcloseDoors] = useState(false)
 
   //  uses new hook to perform side effects in function components
-  useEffect(()=>{
+  useEffect(() => {
     document.title = `${PanelClass.currentFloor}`
   })
-  
+
   const onClick = (event) => {
 
     const floorPressed = event.target.name
-    
+
     // Uses PanelClass method press and sends in needed functions and target
     PanelClass.press(floorPressed, setdisplayFloor.bind(this), setcloseDoors.bind(this))
     // Updates rendered panel to current buttons pressed
     setBtnObj(PanelClass.btnObj)
- 
+
   }
 
   return (
     <Fragment>
       <Elevator>
-      <PanelHouse>
-      <Display>
-       <FloorDisplay>{displayFloor}</FloorDisplay>
-      </Display> 
-      <Panel>
-        {PanelClass.panelArray.map(btn =>
-           <Button key={btn} name={btn} active={btnObj[btn]} onClick={onClick}>{btn}</Button>                       
+        <PanelHouse>
+          <Display>
+            <FloorDisplay>{displayFloor}</FloorDisplay>
+          </Display>
+          <Panel>
+            {PanelClass.panelArray.map(btn =>
+              <Button key={btn} name={btn} active={btnObj[btn]} onClick={onClick}>{btn}</Button>
             )}
-      </Panel>
-     </PanelHouse>
+          </Panel>
+        </PanelHouse>
         <Doors >
           {
             (closeDoors) ?
-          <LeftDoor/> : <LeftDoorClose />
+              <LeftDoor /> : <LeftDoorClose />
           }
           <Floors>
-          <Switch>             
+            <Switch>
               <Route exact path={`/floor/B`} component={FloorB} />
               <Route exact path={`/floor/GL`} component={FloorGL} />
               <Route exact path={`/floor/2`} component={Floor2} />
               <Route exact path={`/floor/3`} component={Floor3} />
               <Route exact path={`/floor/4`} component={Floor4} />
-              <Route exact path={`/floor/5`} component={Floor5} />            
-          </Switch>
+              <Route exact path={`/floor/5`} component={Floor5} />
+            </Switch>
           </Floors>
           {
             (closeDoors) ?
-          <RightDoor/> : <RightDoorClose />
+              <RightDoor /> : <RightDoorClose />
           }
         </Doors>
-     </Elevator>
+      </Elevator>
     </Fragment>
   )
 }
 
-
-
 export default ElevatorPanel
-
-
-
 
 
 
@@ -224,7 +212,7 @@ const LeftDoor = styled.div`
    
    
 `
-const LeftDoorClose = styled(LeftDoor)`
+const LeftDoorClose = styled(LeftDoor) `
     animation-direction: reverse;
 `
 
@@ -235,7 +223,7 @@ const RightDoor = styled.div`
     animation: ${right} 3s forwards;  
 `
 
-const RightDoorClose = styled(RightDoor)`
+const RightDoorClose = styled(RightDoor) `
   animation-direction: reverse; 
 `
 
@@ -268,13 +256,13 @@ const Button = styled.button`
   width: 4rem;
   height: 4rem;
   transition: all .2s;
-  box-shadow: ${props => { 
-    if (props.active) return ".5px .5px .5px .5px rgba( 141,224,164, .2)" 
+  box-shadow: ${props => {
+    if (props.active) return ".5px .5px .5px .5px rgba( 141,224,164, .2)"
     else return "1px 1px (0,0,0, .2)"
-    }};
+  }};
   color: ${props => {
-    if(props.active) return "white"
-    else return "black"  
+    if (props.active) return "white"
+    else return "black"
   }};
   background-color: ${props => {
     if (props.active) {
