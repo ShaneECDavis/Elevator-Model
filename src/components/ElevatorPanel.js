@@ -48,15 +48,22 @@ import history from '../history'
     let x = currentIndex; 
     const inMotion = setInterval(() => {      
       if(this.panelArray[destinationIndex] === this.currentFloor){
+
         stopMotion()
-        this.inMotion = false
+
+        // continues elevators motion if there is still buttons active
         if(this.queue[0]){
-            this.startMotion(displayFlr,closeDrs)
+          this.startMotion(displayFlr,closeDrs)
+        } else {
+          this.inMotion = false
         }
+
+        // closes doors
         closeDrs(true)
         this.btnObj[this.currentFloor] = false
       }  else {
       this.currentFloor = this.panelArray[x] || this.currentFloor
+
       displayFlr(this.currentFloor)
       x = directionOfTravel > 0  ? x + 1 : x - 1  
     }
@@ -90,12 +97,18 @@ const ElevatorPanel = () => {
   })
   
   const onClick = (event) => {
-    
-    setBtnObj(PanelClass.btnObj)
-    setdisplayFloor(PanelClass.currentFloor)
-    setcloseDoors(false)
-    PanelClass.press(event.target.name, setdisplayFloor.bind(this), setcloseDoors.bind(this))
     const target = event.target.name
+    
+    // Updates rendered panel to current buttons pressed
+    setBtnObj(PanelClass.btnObj)
+    // Updates display to have correct floor
+    setdisplayFloor(PanelClass.currentFloor)
+    // Closes door
+    setcloseDoors(false)
+    // Uses PanelClass method and sends in needed functions and target
+    PanelClass.press(target, setdisplayFloor.bind(this), setcloseDoors.bind(this))
+
+    // delays new floor being rendered before doors shut
     setTimeout(() => {
       history.push(`/floor/${target}`)
     }, 3000);
@@ -119,7 +132,6 @@ const ElevatorPanel = () => {
           {
             (closeDoors) ?
           <LeftDoor/> : <LeftDoorClose />
-
           }
           <Floors>
           <Switch>             
@@ -145,6 +157,12 @@ const ElevatorPanel = () => {
 
 export default ElevatorPanel
 
+
+
+
+
+
+// Styled components 
 
 const right = keyframes`
  0%{
